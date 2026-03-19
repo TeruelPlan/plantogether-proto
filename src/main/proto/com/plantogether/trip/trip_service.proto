@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package com.plantogether.trip;
+
+option java_multiple_files = true;
+option java_package = "com.plantogether.trip.grpc";
+
+service TripService {
+  rpc GetTrip (GetTripRequest) returns (TripResponse);
+  rpc IsMember (IsMemberRequest) returns (IsMemberResponse);
+}
+
+message GetTripRequest {
+  string trip_id = 1;
+}
+
+message TripResponse {
+  string trip_id    = 1;
+  string name       = 2;
+  string organizer_keycloak_id = 3;
+  repeated string member_keycloak_ids = 4;
+}
+
+message IsMemberRequest {
+  string trip_id       = 1;
+  string keycloak_id   = 2;
+}
+
+message IsMemberResponse {
+  bool is_member = 1;
+  string role    = 2;
+}

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package com.plantogether.file;
+
+option java_multiple_files = true;
+option java_package = "com.plantogether.file.grpc";
+
+service FileService {
+  rpc GetPresignedUploadUrl (PresignedUrlRequest) returns (PresignedUrlResponse);
+  rpc GetPresignedDownloadUrl (PresignedUrlRequest) returns (PresignedUrlResponse);
+  rpc DeleteFile (DeleteFileRequest) returns (DeleteFileResponse);
+}
+
+message PresignedUrlRequest {
+  string bucket    = 1;
+  string object_key = 2;
+  int32  expires_seconds = 3;
+}
+
+message PresignedUrlResponse {
+  string url = 1;
+}
+
+message DeleteFileRequest {
+  string bucket     = 1;
+  string object_key = 2;
+}
+
+message DeleteFileResponse {
+  bool success = 1;
+}
