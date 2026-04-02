@@ -8,7 +8,7 @@ This file provides guidance to Claude when working with code in this repository.
 for the PlanTogether microservices ecosystem. It compiles `.proto` files into Java gRPC stubs consumed by other
 microservices.
 
-**Stack:** Java 21, Maven 3.8.1+, gRPC 1.62+, protobuf 3.x
+**Stack:** Java 25, Maven 3.8.1+, gRPC 1.62+, protobuf 3.x
 
 ## Commands
 
