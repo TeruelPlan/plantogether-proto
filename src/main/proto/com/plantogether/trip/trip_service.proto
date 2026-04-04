@@ -8,6 +8,8 @@ option java_package = "com.plantogether.trip.grpc";
 service TripService {
   rpc GetTrip (GetTripRequest) returns (TripResponse);
   rpc IsMember (IsMemberRequest) returns (IsMemberResponse);
+  rpc GetTripMembers (GetTripMembersRequest) returns (GetTripMembersResponse);
+  rpc GetTripCurrency (GetTripCurrencyRequest) returns (GetTripCurrencyResponse);
 }
 
 message GetTripRequest {
@@ -17,16 +19,43 @@ message GetTripRequest {
 message TripResponse {
   string trip_id = 1;
   string name = 2;
-  string organizer_keycloak_id = 3;
-  repeated string member_keycloak_ids = 4;
+  reserved 3;
+  reserved "organizer_keycloak_id";
+  reserved 4;
+  reserved "member_keycloak_ids";
+  string organizer_device_id = 7;
+  repeated string member_device_ids = 8;
 }
 
 message IsMemberRequest {
   string trip_id = 1;
-  string keycloak_id = 2;
+  reserved 2; reserved "keycloak_id";              // migrated from keycloak to device identity
+  string device_id = 3;
 }
 
 message IsMemberResponse {
   bool is_member = 1;
   string role = 2;
+}
+
+message GetTripMembersRequest {
+  string trip_id = 1;
+}
+
+message TripMemberProto {
+  string device_id = 1;
+  string role = 2;
+  string display_name = 3;
+}
+
+message GetTripMembersResponse {
+  repeated TripMemberProto members = 1;
+}
+
+message GetTripCurrencyRequest {
+  string trip_id = 1;
+}
+
+message GetTripCurrencyResponse {
+  string currency_code = 1;
 }
