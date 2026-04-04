@@ -1,92 +1,89 @@
 # PlanTogether Protocol Buffers (gRPC)
 
-> Définitions Protocol Buffer partagées pour la communication synchrone inter-services
+> Shared Protocol Buffer definitions for synchronous inter-service communication
 
-## Rôle
+## Purpose
 
-Ce module Maven contient l'ensemble des fichiers `.proto` définissant les contrats gRPC entre les microservices
-PlanTogether. Il génère automatiquement les stubs Java (client et serveur) via le plugin `protobuf-maven-plugin`.
-Il doit être installé en premier avant tout autre microservice.
+This Maven module contains all `.proto` files defining gRPC contracts between PlanTogether microservices. It automatically generates Java stubs (client and server) via the `protobuf-maven-plugin`. It must be installed first before any other microservice.
 
-## Prérequis et installation
+## Prerequisites and installation
 
 ```bash
-# À installer en premier, avant plantogether-common et tous les microservices
+# Install first, before plantogether-common and all microservices
 cd plantogether-proto
 mvn clean install
 ```
 
-## Services définis
+## Defined Services
 
-### TripGrpcService (`trip_service.proto`)
+### TripService (`trip_service.proto`)
 
-Exposé par **trip-service** sur le port **9081**. Consommé par tous les autres microservices.
+Exposed by **trip-service** on port **9081**. Consumed by all other microservices.
 
 | RPC | Request | Response | Description |
 |-----|---------|----------|-------------|
-| `CheckMembership` | `MembershipRequest` | `MembershipResponse` | Vérifie si un user est membre d'un trip |
-| `GetTripMembers` | `TripMembersRequest` | `TripMembersResponse` | Profils complets des membres |
-| `GetUserProfiles` | `UserProfilesRequest` | `TripMembersResponse` | Résolution batch de profils par keycloak_ids |
-| `GetTripCurrency` | `TripCurrencyRequest` | `TripCurrencyResponse` | Devise de référence du trip |
+| `IsMember` | `IsMemberRequest{trip_id, device_id}` | `IsMemberResponse{is_member, role}` | Check if a device is a member of a trip |
+| `GetTripMembers` | `GetTripMembersRequest{trip_id}` | `GetTripMembersResponse{members[]}` | Get all trip members with display names |
+| `GetTripCurrency` | `GetTripCurrencyRequest{trip_id}` | `GetTripCurrencyResponse{currency_code}` | Get the trip's reference currency |
+| `GetTrip` | `GetTripRequest{trip_id}` | `TripResponse{trip_id, name, ...}` | Get trip details |
 
-Messages clés :
+Key messages:
 
 ```protobuf
-message MembershipResponse {
+message IsMemberResponse {
   bool is_member = 1;
   string role = 2; // ORGANIZER | PARTICIPANT
 }
 
-message MemberProfile {
-  string user_id = 1;
-  string display_name = 2;
-  string avatar_url = 3;
-  string email = 4;
-  string role = 5;
+message TripMemberProto {
+  string device_id = 1;
+  string role = 2;
+  string display_name = 3;
 }
 ```
 
-### FileGrpcService (`file_service.proto`)
+### FileService (`file_service.proto`)
 
-Exposé par **file-service** sur le port **9088**. Consommé par les services ayant besoin de presigned URLs.
+Exposed by **file-service** on port **9088**. Consumed by services needing presigned URLs.
 
 | RPC | Request | Response | Description |
 |-----|---------|----------|-------------|
-| `GetPresignedUrl` | `PresignedUrlRequest` | `PresignedUrlResponse` | URL de lecture MinIO signée |
+| `GetPresignedUrl` | `PresignedUrlRequest` | `PresignedUrlResponse` | MinIO signed read URL |
 
-## Structure du module
+## Module Structure
 
 ```
 plantogether-proto/
 ├── src/
 │   └── main/
 │       └── proto/
-│           ├── trip_service.proto      # Contrats TripGrpcService
-│           └── file_service.proto      # Contrats FileGrpcService
-└── pom.xml                             # Plugin protobuf-maven-plugin, génération stubs Java
+│           └── com/plantogether/
+│               ├── trip/trip_service.proto    # TripService contracts
+│               └── file/file_service.proto    # FileService contracts
+└── pom.xml                                    # protobuf-maven-plugin, Java stub generation
 ```
 
-## Conventions de versioning
+## Versioning Rules
 
-Les fichiers `.proto` suivent les règles de compatibilité ascendante :
+Proto files follow backward compatibility rules:
 
-- **Interdit** : supprimer, renommer ou changer le type d'un champ existant
-- **Autorisé** : ajouter de nouveaux champs optionnels avec de nouveaux numéros de champ
-- Les numéros de champs supprimés doivent être réservés : `reserved 3;`
+- **Forbidden**: removing, renaming, or changing the type of an existing field
+- **Allowed**: adding new optional fields with new field numbers
+- Removed field numbers must be reserved: `reserved 3;`
 
-La CI vérifie ces règles via `buf lint` et `buf breaking` à chaque PR.
+CI enforces these rules via `buf lint` and `buf breaking` on every PR.
 
-## Dépendances
+## Dependencies
 
-Ce module est une dépendance de **tous les microservices** qui exposent ou consomment du gRPC :
+This module is a dependency of **all microservices** that expose or consume gRPC:
 
-| Service | Rôle |
+| Service | Role |
 |---------|------|
-| plantogether-trip-service | Serveur gRPC (9081) |
-| plantogether-file-service | Serveur gRPC (9088) |
-| plantogether-poll-service | Client gRPC (trip) |
-| plantogether-destination-service | Client gRPC (trip, file) |
-| plantogether-expense-service | Client gRPC (trip, file) |
-| plantogether-task-service | Client gRPC (trip) |
-| plantogether-chat-service | Client gRPC (trip) |
-| plantogether-notification-service | Client gRPC (trip) |
+| plantogether-trip-service | gRPC server (9081) |
+| plantogether-file-service | gRPC server (9088) |
+| plantogether-poll-service | gRPC client (trip) |
+| plantogether-destination-service | gRPC client (trip, file) |
+| plantogether-expense-service | gRPC client (trip, file) |
+| plantogether-task-service | gRPC client (trip) |
+| plantogether-chat-service | gRPC client (trip) |
+| plantogether-notification-service | gRPC client (trip) |
