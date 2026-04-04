@@ -8,7 +8,7 @@ This file provides guidance to Claude when working with code in this repository.
 for the PlanTogether microservices ecosystem. It compiles `.proto` files into Java gRPC stubs consumed by other
 microservices.
 
-**Stack:** Java 25, Maven 3.8.1+, gRPC 1.62+, protobuf 3.x
+**Stack:** Java 21, Maven 3.8.1+, gRPC 1.63+, protobuf 3.x
 
 ## Commands
 
@@ -51,19 +51,21 @@ src/main/proto/com/plantogether/
 
 ### Defined gRPC services
 
-#### `TripGrpcService` — `com.plantogether.trip.grpc` (server: trip-service port 9081)
+#### `TripService` — `com.plantogether.trip.grpc` (server: trip-service port 9081)
 
 | Method | Request | Response | Purpose |
 |---|---|---|---|
-| `CheckMembership` | `MembershipRequest{trip_id, user_id}` | `MembershipResponse{is_member, role}` | Verify user belongs to a trip (called by all services before any operation) |
-| `GetTripMembers` | `TripMembersRequest{trip_id}` | `TripMembersResponse{members[]}` | Retrieve all trip members with profiles |
-| `GetUserProfiles` | `UserProfilesRequest{keycloak_ids[]}` | `TripMembersResponse{members[]}` | Bulk profile lookup by Keycloak ID |
-| `GetTripCurrency` | `TripCurrencyRequest{trip_id}` | `TripCurrencyResponse{currency}` | Get trip's reference currency (called by expense-service) |
+| `IsMember` | `IsMemberRequest{trip_id, device_id}` | `IsMemberResponse{is_member, role}` | Verify device belongs to a trip (called by all services before any operation) |
+| `GetTripMembers` | `GetTripMembersRequest{trip_id}` | `GetTripMembersResponse{members[]}` | Retrieve all trip members with device_id, role, display_name |
+| `GetTripCurrency` | `GetTripCurrencyRequest{trip_id}` | `GetTripCurrencyResponse{currency_code}` | Get trip's reference currency (called by expense-service) |
+| `GetTrip` | `GetTripRequest{trip_id}` | `TripResponse{trip_id, name, organizer_device_id, member_device_ids[]}` | Get trip details |
 
-`MemberProfile` message: `user_id`, `display_name`, `avatar_url`, `email`, `role`.
-`MembershipResponse.role`: `ORGANIZER` | `PARTICIPANT`.
+`TripMemberProto` message: `device_id`, `role`, `display_name`.
+`IsMemberResponse.role`: `"ORGANIZER"` | `"PARTICIPANT"`.
 
-#### `FileGrpcService` — `com.plantogether.file.grpc` (server: file-service port 9088)
+**Note:** The proto used `keycloak_id` in earlier versions. Those field numbers are now `reserved`. Current fields use `device_id`.
+
+#### `FileService` — `com.plantogether.file.grpc` (server: file-service port 9088)
 
 | Method | Purpose |
 |---|---|
@@ -73,20 +75,20 @@ src/main/proto/com/plantogether/
 
 | Service | gRPC client(s) used |
 |---|---|
-| poll-service | TripGrpcService.CheckMembership |
-| destination-service | TripGrpcService.CheckMembership |
-| expense-service | TripGrpcService.CheckMembership, TripGrpcService.GetTripCurrency |
-| task-service | TripGrpcService.CheckMembership |
-| chat-service | TripGrpcService.CheckMembership |
-| notification-service | TripGrpcService.GetTripMembers |
-| All services | FileGrpcService.GetPresignedUrl |
+| poll-service | TripService.IsMember |
+| destination-service | TripService.IsMember |
+| expense-service | TripService.IsMember, TripService.GetTripCurrency |
+| task-service | TripService.IsMember |
+| chat-service | TripService.IsMember |
+| notification-service | TripService.GetTripMembers |
+| All services | FileService.GetPresignedUrl |
 
 ## Proto Versioning Rules
 
 - **Never** remove, rename, or retype existing fields — this breaks consumers.
 - **Never** change a field's type or number.
 - Adding new optional fields (with new field numbers) is safe and backward-compatible.
-- Use field numbers 1–15 for frequently used fields (single-byte encoding).
+- Use field numbers 1-15 for frequently used fields (single-byte encoding).
 - Reserve removed field numbers with `reserved 16;` to prevent accidental reuse.
 - Use `buf lint` and `buf breaking` in CI to enforce these rules automatically.
 
