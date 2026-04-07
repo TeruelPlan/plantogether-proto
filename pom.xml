@@ -49,7 +49,7 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/TeruelPlan/plantogether/plantogether-proto</url>
+            <url>https://maven.pkg.github.com/TeruelPlan/plantogether-proto</url>
         </repository>
     </distributionManagement>
 
