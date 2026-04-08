@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          # Compute next minor snapshot: 1.2.3 -> 1.3.0-SNAPSHOT
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          echo "NEXT_SNAPSHOT=${MAJOR}.$((MINOR + 1)).0-SNAPSHOT" >> "$GITHUB_OUTPUT"
+
+      - name: Set release version in pom.xml
+        run: mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.VERSION }} -DgenerateBackupPoms=false
+
+      - name: Deploy to GitHub Packages
+        run: mvn --batch-mode -s settings.xml deploy -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "plantogether-proto ${{ github.ref_name }}"
+          generate_release_notes: true
+
+      - name: Bump to next snapshot version
+        run: |
+          mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.NEXT_SNAPSHOT }} -DgenerateBackupPoms=false
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pom.xml
+          git commit -m "chore: bump version to ${{ steps.version.outputs.NEXT_SNAPSHOT }}"
+          git push origin main
