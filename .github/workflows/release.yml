@@ -38,7 +38,7 @@ jobs:
         run: mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.VERSION }} -DgenerateBackupPoms=false
 
       - name: Deploy to GitHub Packages
-        run: mvn --batch-mode -s settings.xml deploy -DskipTests
+        run: mvn --batch-mode -s .settings.xml deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
