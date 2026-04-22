@@ -22,7 +22,19 @@ jobs:
         with:
           java-version: '21'
           distribution: temurin
-          cache: maven
+          server-id: github-packages
+          server-username: GITHUB_ACTOR
+          server-password: PACKAGES_TOKEN
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/com/plantogether
+          key: m2-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            m2-${{ runner.os }}-
 
       - name: Extract version from tag
         id: version
@@ -38,13 +50,13 @@ jobs:
         run: mvn --batch-mode -s .settings.xml versions:set -DnewVersion=${{ steps.version.outputs.VERSION }} -DgenerateBackupPoms=false
         env:
           GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
       - name: Deploy to GitHub Packages
         run: mvn --batch-mode -s .settings.xml deploy -DskipTests
         env:
           GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -55,7 +67,7 @@ jobs:
       - name: Bump to next snapshot version
         env:
           GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
         run: |
           mvn --batch-mode -s .settings.xml versions:set -DnewVersion=${{ steps.version.outputs.NEXT_SNAPSHOT }} -DgenerateBackupPoms=false
           git config user.name "github-actions[bot]"

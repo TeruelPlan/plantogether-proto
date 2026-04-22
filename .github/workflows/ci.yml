@@ -20,21 +20,30 @@ jobs:
         with:
           java-version: '21'
           distribution: temurin
-          cache: maven
-          server-id: github
+          server-id: github-packages
           server-username: GITHUB_ACTOR
-          server-password: GITHUB_TOKEN
+          server-password: PACKAGES_TOKEN
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/com/plantogether
+          key: m2-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            m2-${{ runner.os }}-
 
       - name: Compile (generates gRPC stubs)
         run: mvn -s .settings.xml --batch-mode compile
         env:
-          GITHUB_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Run tests
         run: mvn -s .settings.xml --batch-mode test
         env:
-          GITHUB_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Upload test reports
