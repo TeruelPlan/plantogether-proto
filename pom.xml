@@ -76,13 +76,6 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>github-proto</id>
-            <url>https://maven.pkg.github.com/TeruelPlan/plantogether-proto</url>
-        </repository>
-    </distributionManagement>
-
     <repositories>
         <repository>
             <id>github-parent</id>
