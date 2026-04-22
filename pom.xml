@@ -8,6 +8,7 @@
         <groupId>com.plantogether</groupId>
         <artifactId>plantogether-parent</artifactId>
         <version>1.0.0</version>
+        <relativePath/>
     </parent>
 
     <artifactId>plantogether-proto</artifactId>
