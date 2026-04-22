@@ -75,14 +75,4 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
-        <repository>
-            <id>github-parent</id>
-            <name>GitHub Packages — parent</name>
-            <url>https://maven.pkg.github.com/TeruelPlan/plantogether-parent</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
