@@ -18,6 +18,13 @@
     <name>plantogether-proto</name>
     <description>Shared Protobuf definitions (gRPC) for all microservices</description>
 
+    <scm>
+        <connection>scm:git:https://github.com/TeruelPlan/plantogether-proto.git</connection>
+        <developerConnection>scm:git:https://github.com/TeruelPlan/plantogether-proto.git</developerConnection>
+        <url>https://github.com/TeruelPlan/plantogether-proto</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
