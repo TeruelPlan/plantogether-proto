@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>plantogether-proto</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>plantogether-proto</name>
@@ -20,7 +20,7 @@
         <connection>scm:git:https://github.com/TeruelPlan/plantogether-proto.git</connection>
         <developerConnection>scm:git:https://github.com/TeruelPlan/plantogether-proto.git</developerConnection>
         <url>https://github.com/TeruelPlan/plantogether-proto</url>
-        <tag>plantogether-proto-1.3.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
