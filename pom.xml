@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>plantogether-proto</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>plantogether-proto</name>

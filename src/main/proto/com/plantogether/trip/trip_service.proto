@@ -45,9 +45,8 @@ message GetTripMembersRequest {
 }
 
 message TripMemberProto {
-  // Auth secret of the device. Will be removed in a future major version once
-  // all consumers have migrated to trip_member_id.
-  string device_id = 1;
+  reserved 1;
+  reserved "device_id";
   string role = 2;
   string display_name = 3;
   // Stable, opaque per-trip identity. Safe to expose to other clients.
