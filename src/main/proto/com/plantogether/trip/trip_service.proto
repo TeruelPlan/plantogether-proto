@@ -36,6 +36,8 @@ message IsMemberRequest {
 message IsMemberResponse {
   bool is_member = 1;
   string role = 2;
+  // Populated when is_member is true. Empty string otherwise.
+  string trip_member_id = 3;
 }
 
 message GetTripMembersRequest {
@@ -43,9 +45,12 @@ message GetTripMembersRequest {
 }
 
 message TripMemberProto {
-  string device_id = 1;
+  reserved 1;
+  reserved "device_id";
   string role = 2;
   string display_name = 3;
+  // Stable, opaque per-trip identity. Safe to expose to other clients.
+  string trip_member_id = 4;
 }
 
 message GetTripMembersResponse {
